@@ -9,8 +9,8 @@
     "lib"
   ],
   "scripts": {
-    "lint": "eslint --fix lib",
-    "lint:bail": "eslint lib",
+    "lint": "eslint --fix .",
+    "lint:bail": "eslint .",
     "prepublish": "yarn run lint:bail",
     "ci": "yarn run lint:bail"
   },

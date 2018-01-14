@@ -31,23 +31,22 @@ Uses:
 yarn add --dev react-native-navigation-mock-render jsdom@^11.5.1 enzyme@^3.3.0 enzyme-adapter-react-16@^1.1.1 react-native-mock-render@^0.0.19
 ```
 
+Besides you need a version of `react-dom` matching your version of `react`.
+
 ```javascript
 
-/* @flow */
 import { Navigation } from 'react-native-navigation'
 import 'react-native-navigation-mock-render/lib/setup-enzyme-environment'
 import { getEnzymeAppWrapper } from 'react-native-navigation-mock-render/lib/platform'
 
-import { IntroScreen } from '../screens/intro'
-import startApplication from '../index'
+import { IntroScreen } from '../screens/Intro'
+import startApp from '../index'
 
 jest.mock('react-native-navigation/src/deprecated/platformSpecificDeprecated', () =>
-  // $FlowFixMe: Jest adds requireActual
   require.requireActual('react-native-navigation-mock-render/lib/platform')
 )
 
 jest.mock('react-native-navigation/src/ScreenVisibilityListener', () =>
-  // $FlowFixMe: Jest adds requireActual
   require.requireActual(
     'react-native-navigation-mock-render/lib/ScreenVisibilityListener'
   )
@@ -55,13 +54,13 @@ jest.mock('react-native-navigation/src/ScreenVisibilityListener', () =>
 
 const wrapper = getEnzymeAppWrapper()
 
-export const flushAllPromises = (): Promise<void> =>
+const flushAllPromises = () =>
   new Promise(resolve => setImmediate(resolve))
 
 describe('app integration test', () => {
 
-  it('shows authentication screen after stepping through intro', async () => {
-    startApplication()
+  it('shows main screen after stepping through intro', async () => {
+    startApp()
 
     await flushAllPromises()
 
@@ -82,6 +81,8 @@ describe('app integration test', () => {
   })
 })
 ```
+
+See more inside the `example/__tests__` folder.
 
 ## Limitations
 

@@ -10,9 +10,10 @@ module.exports = {
   rules: {
     'prettier/prettier': [
       'error',
-      { trailingComma: 'es5', singleQuote: true, tabWidth: 2, },
+      { trailingComma: 'es5', singleQuote: true, tabWidth: 2 },
     ],
 
+    'react/prop-types': 'off',
     'prefer-const': 'error',
     'no-unused-vars': ['error', { vars: 'all', args: 'none' }],
     'no-underscore-dangle': 'off',
@@ -21,6 +22,6 @@ module.exports = {
     'no-warning-comments': ['warn', { terms: ['fixme'], location: 'start' }],
   },
   parserOptions: {
-    sourceType: 'module'
-  }
+    sourceType: 'module',
+  },
 };
