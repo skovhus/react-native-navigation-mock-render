@@ -1,6 +1,6 @@
 {
   "name": "react-native-navigation-mock-render",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Enzyme render mock of wix/react-native-navigation",
   "license": "MIT",
   "repository": "skovhus/react-native-navigation-mock-render",

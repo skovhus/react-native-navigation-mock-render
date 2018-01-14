@@ -35,7 +35,7 @@ yarn add --dev react-native-navigation-mock-render jsdom@^11.5.1 enzyme@^3.3.0 e
 
 /* @flow */
 import { Navigation } from 'react-native-navigation'
-import 'react-native-navigation-mock-render/setup-enzyme-environment'
+import 'react-native-navigation-mock-render/lib/setup-enzyme-environment'
 import { getEnzymeAppWrapper } from 'react-native-navigation-mock-render/lib/platform'
 
 import { IntroScreen } from '../screens/intro'
