@@ -1,0 +1,44 @@
+{
+  "name": "react-native-navigation-mock-render",
+  "version": "0.1.0",
+  "description": "Enzyme render mock of wix/react-native-navigation",
+  "license": "MIT",
+  "repository": "skovhus/react-native-navigation-mock-render",
+  "author": "Kenneth Skovhus <kenneth.skovhus@gmail.com>",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "lint": "eslint --fix lib",
+    "lint:bail": "eslint lib",
+    "prepublish": "yarn run lint:bail",
+    "ci": "yarn run lint:bail"
+  },
+  "keywords": [
+    "react",
+    "react-native",
+    "enzyme",
+    "jest",
+    "react-native-navigation",
+    "mock",
+    "testing"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "babel-eslint": "^8.2.1",
+    "eslint": "^4.15.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.4.0",
+    "eslint-plugin-react": "^7.5.1",
+    "prettier": "^1.10.2"
+  },
+  "peerDependencies": {
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "jsdom": "^11.5.1",
+    "react": "*",
+    "react-dom": "*",
+    "react-native": "*",
+    "react-native-mock-render": "^0.0.19"
+  }
+}
