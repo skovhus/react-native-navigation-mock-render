@@ -26,71 +26,38 @@ import { emitScreenEvent } from './ScreenVisibilityListener';
 // Mock
 // =========================
 
-let enzymeAppWrapper = null;
-let currentScreenId = null;
-let currentScreenContent = null;
+function mountNode(screen) {
+  return new Promise((resolve, reject) => {
+    const screenId = screen.screen;
 
-class App extends Component {
-  state = {
-    content: null,
-    screenId: null,
-  };
-
-  componentDidUpdate(prevProps, prevState) {
-    // TODO: more events
-    const prevScreenId = prevState.screenId;
-    const currentScreenId = this.state.screenId;
-    const changed = prevScreenId !== currentScreenId;
-    if (!changed) {
-      return;
+    const ScreenClass = Navigation.getRegisteredScreen(screenId);
+    if (!ScreenClass) {
+      throw new Error(`screen not registered ${screenId}`);
     }
 
-    if (prevScreenId) {
-      emitScreenEvent('didDisappear', prevScreenId);
-    }
+    console.log('>> mountNode mounting', screenId, ScreenClass);
 
-    emitScreenEvent('didAppear', this.state.screenId);
-  }
-
-  render() {
-    // FIXME: for modals this is not correct... When showing a modal,
-    // we should not remove current screen from the DOM as componentWillMount
-    // should not be called on screen if modal is removed.
-    return this.state.content;
-  }
-}
-
-function updateRenderedApp(screen) {
-  if (!enzymeAppWrapper) {
-    enzymeAppWrapper = mount(<App />);
-  }
-
-  const screenId = screen.screen;
-
-  const ScreenClass = Navigation.getRegisteredScreen(screenId);
-  if (!ScreenClass) {
-    throw new Error(`screen not registered ${screenId}`);
-  }
-
-  if (currentScreenId === screenId) {
-    throw new Error(`Cannot navigate to same screen: ${screenId}`);
-  }
-  currentScreenId = screenId;
-  currentScreenContent = (
-    <ScreenClass navigator={Navigation} {...screen.passProps} />
-  );
-
-  enzymeAppWrapper.setState({ content: currentScreenContent, screenId });
-
-  return enzymeAppWrapper;
+    const node = mount(
+      <ScreenClass navigator={Navigation} {...screen.passProps} />
+    );
+    // Life cycle methods can be async
+    setImmediate(() => {
+      console.log('>> mountNode mounted', screenId);
+      resolve(node);
+    });
+  });
 }
 
 export function getEnzymeAppWrapper() {
-  if (!enzymeAppWrapper) {
-    enzymeAppWrapper = mount(<App />);
-  }
-
-  return enzymeAppWrapper;
+  // FIXME: rename
+  console.log(
+    'getEnzymeAppWrapper',
+    Modal.getCurrentScreenNode().name(),
+    ControllerRegistry.getCurrentScreenNode().name()
+  );
+  return (
+    Modal.getCurrentScreenNode() || ControllerRegistry.getCurrentScreenNode()
+  );
 }
 
 class NavigationControllerClass {
@@ -123,6 +90,7 @@ class NavigationControllerClass {
 class ControllerRegistryClass {
   constructor() {
     this.controllers = {};
+    this.screenIdToNode = {};
     this.rootId = null;
   }
 
@@ -134,14 +102,36 @@ class ControllerRegistryClass {
     return this.controllers[this.rootId].fn();
   }
 
+  getCurrentScreenNode() {
+    const screen = this.getCurrentScreen();
+    const screenId = screen.screen;
+
+    const node = this.screenIdToNode[screenId];
+    if (!node) {
+      console.error(
+        `ControllerRegistryClass: Did not find ${screenId} in `,
+        this.screenIdToNode
+      );
+      throw new Error('ControllerRegistryClass: Internal state out of sync...');
+    }
+
+    return node;
+  }
+
   getCurrentScreenId() {
-    return this.getCurrentScreen.screen.screen;
+    return this.getCurrentScreen().screen;
   }
 
   async setRootController(id, animationType, passProps) {
     this.rootId = id;
     const screen = this.getCurrentScreen();
-    return updateRenderedApp(screen);
+    const screenId = screen.screen;
+
+    const node = await mountNode(screen);
+
+    this.screenIdToNode[screenId] = node;
+
+    return node;
   }
 }
 
@@ -157,13 +147,35 @@ function ControllersNavigationController(id) {
 
 class ModalClass {
   constructor() {
-    this.currentModals = [];
+    this.currentModals = []; // not controller
+    this.screenIdToNode = {};
   }
 
   getCurrentScreen() {
     return this.currentModals.length === 0
       ? null
-      : this.currentModals[this.currentModals.length - 1].fn();
+      : this.currentModals[this.currentModals.length - 1];
+  }
+
+  getCurrentScreenNode() {
+    const screen = this.getCurrentScreen();
+    if (!screen) {
+      return null;
+    }
+
+    const screenId = screen.screen;
+
+    const node = this.screenIdToNode[screenId];
+    if (!node) {
+      console.warn(
+        `ModalClass: Did not find ${screenId} in `,
+        this.screenIdToNode
+      );
+      console.warn(Object.keys(this.screenIdToNode));
+      throw new Error('ModalClass: Internal state out of sync...');
+    }
+
+    return node;
   }
 
   getCurrentScreenId() {
@@ -171,30 +183,39 @@ class ModalClass {
     return (screen && screen.screen) || null;
   }
 
-  showController(controllerId, animationType) {
+  async showController(controllerId, animationType) {
     const controller = ControllerRegistry.controllers[controllerId];
     if (!controller) {
-      throw new Error('Controller not found');
+      throw new Error('Modal.showController: Controller not found');
+    }
+    const screen = controller.fn();
+
+    const screenId = screen.screen;
+
+    if (!screenId) {
+      throw new Error('Modal.showController: screenId not found');
     }
 
-    this.currentModals.push(controller);
-    this._updateApp();
+    const node = await mountNode(screen);
+    console.log('--- showModal 14', node.debug());
+
+    this.screenIdToNode[screenId] = node;
+
+    console.log('--- showModal 15');
+
+    this.currentModals.push(screen);
   }
 
   async dismissController(animationType) {
+    // FIXME; unmount
     this.currentModals.pop();
     this._updateApp();
   }
 
   dismissAllControllers(animationType) {
+    // FIXME; unmount
     this.currentModals = [];
     this._updateApp();
-  }
-
-  _updateApp() {
-    const screen =
-      this.getCurrentScreen() || ControllerRegistry.getCurrentScreen();
-    updateRenderedApp(screen);
   }
 }
 
@@ -256,7 +277,7 @@ async function startSingleScreenApp(params) {
   savePassProps(params);
 
   ControllerRegistry.registerController(controllerID, () => Controller);
-  return await ControllerRegistry.setRootController(
+  return ControllerRegistry.setRootController(
     controllerID,
     params.animationType,
     params.passProps || {}
@@ -499,6 +520,7 @@ function showModal(params) {
   savePassProps(params);
 
   ControllerRegistry.registerController(controllerID, () => Controller);
+
   Modal.showController(controllerID, params.animationType);
 }
 

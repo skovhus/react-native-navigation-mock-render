@@ -26,22 +26,19 @@ copyProps(window, global);
 
 Enzyme.configure({ adapter: new Adapter() });
 
-const consoleMethods = ['error', 'warn'];
-consoleMethods.forEach(consoleMethod => {
-  const originalConsoleMethod = console[consoleMethod];
-  console[consoleMethod] = (...args) => {
-    const shouldIgnoreMessage = [
-      'Warning: Invalid DOM property',
-      'Warning: Unknown prop',
-      'Warning: View.propTypes',
-      'Warning: Received',
-      'Warning: <',
-      'Warning: The tag',
-      'Warning: Unknown event handler property',
-      'Warning: React does not recognize the',
-    ].some(l => args[0].startsWith(l));
-    if (!shouldIgnoreMessage) {
-      originalConsoleMethod(args);
-    }
-  };
-});
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  const shouldIgnoreMessage = [
+    'Warning: Invalid DOM property',
+    'Warning: Unknown prop',
+    'Warning: View.propTypes',
+    'Warning: Received',
+    'Warning: <',
+    'Warning: The tag',
+    'Warning: Unknown event handler property',
+    'Warning: React does not recognize the',
+  ].some(l => args[0].startsWith(l));
+  if (!shouldIgnoreMessage) {
+    originalConsoleError(args);
+  }
+};

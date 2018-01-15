@@ -18,25 +18,40 @@ jest.mock('react-native-navigation/src/ScreenVisibilityListener', () =>
   )
 );
 
-const wrapper = getEnzymeAppWrapper();
+// const wrapper = getEnzymeAppWrapper();
 
 const flushAllPromises = () => new Promise(resolve => setImmediate(resolve));
 
 describe('app integration test', () => {
   it('shows welcome screen after stepping through intro', async () => {
-    startApp();
+    await startApp();
+
+    //console.log('>>>', getEnzymeAppWrapper().debug());
 
     await flushAllPromises();
 
+    // console.log('>>>', getEnzymeAppWrapper().debug());
+
+    console.log('** 1');
+
     let screenId = await Navigation.getCurrentlyVisibleScreenId();
+
     expect(screenId).toEqual('example.Intro');
 
-    const introInstance = wrapper
+    console.log('** 2');
+
+    await flushAllPromises();
+
+    const introInstance = getEnzymeAppWrapper()
       .find(IntroScreen)
       .first()
       .instance();
 
+    console.log('** 4');
+
     introInstance.onPressAcceptTerms();
+
+    console.log('** 5');
 
     await flushAllPromises();
 
