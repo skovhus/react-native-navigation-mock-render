@@ -13,6 +13,8 @@
     "lint": "eslint --fix .",
     "lint:bail": "eslint .",
     "prepublish": "yarn run lint:bail",
+    "pretest": "yarn link && cd example && yarn link react-native-navigation-mock-render && yarn",
+    "test": "cd example && yarn run test",
     "ci": "yarn run lint:bail"
   },
   "keywords": [

@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "postinstall": "rm -rf node_modules/react-native-navigation-mock-render/example",
     "test": "jest --runInBand --forceExit",
     "test:watch": "yarn test --watch"
   },
