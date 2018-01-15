@@ -1,1 +1,3 @@
 - [ ] mention `jest` setup
+- [ ] multiple mounts OR single mount with all screens and modals
+- [ ] enzyme wrapper should probably only return the screen on top

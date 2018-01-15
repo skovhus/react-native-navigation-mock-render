@@ -13,7 +13,7 @@
  */
 
 import React, { Component } from 'react';
-import { findNodeHandle } from 'react-native';
+import { findNodeHandle, View } from 'react-native';
 import { mount } from 'enzyme';
 
 import _ from 'lodash';
@@ -60,24 +60,49 @@ class App extends Component {
   }
 }
 
-function updateRenderedApp(screen) {
-  if (!enzymeAppWrapper) {
-    enzymeAppWrapper = mount(<App />);
-  }
-
-  const screenId = screen.screen;
-
+function getScreenClass(screenId) {
   const ScreenClass = Navigation.getRegisteredScreen(screenId);
   if (!ScreenClass) {
     throw new Error(`screen not registered ${screenId}`);
   }
+  return ScreenClass;
+}
+
+function updateRenderedApp() {
+  if (!enzymeAppWrapper) {
+    enzymeAppWrapper = mount(<App />);
+  }
+
+  const modalScreen = Modal.getCurrentScreen();
+  const regularScreen = ControllerRegistry.getCurrentScreen();
+
+  const screens = [];
+  if (regularScreen) {
+    screens.push(regularScreen);
+  }
+  if (modalScreen) {
+    screens.push(modalScreen);
+  }
+
+  const screenClasses = screens.map(screen => getScreenClass(screen.screen));
+  const screen = screens[screens.length - 1];
+  const screenId = screen.screen;
 
   if (currentScreenId === screenId) {
     throw new Error(`Cannot navigate to same screen: ${screenId}`);
   }
   currentScreenId = screenId;
+
   currentScreenContent = (
-    <ScreenClass navigator={Navigation} {...screen.passProps} />
+    <View>
+      {screenClasses.map((ScreenClass, idx) => (
+        <ScreenClass
+          navigator={Navigation}
+          {...screens[idx].passProps}
+          key={screens[idx].screen}
+        />
+      ))}
+    </View>
   );
 
   enzymeAppWrapper.setState({ content: currentScreenContent, screenId });
@@ -140,8 +165,7 @@ class ControllerRegistryClass {
 
   async setRootController(id, animationType, passProps) {
     this.rootId = id;
-    const screen = this.getCurrentScreen();
-    return updateRenderedApp(screen);
+    return updateRenderedApp();
   }
 }
 
@@ -192,9 +216,7 @@ class ModalClass {
   }
 
   _updateApp() {
-    const screen =
-      this.getCurrentScreen() || ControllerRegistry.getCurrentScreen();
-    updateRenderedApp(screen);
+    updateRenderedApp();
   }
 }
 

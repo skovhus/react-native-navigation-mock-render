@@ -5,6 +5,7 @@ import { getEnzymeAppWrapper } from 'react-native-navigation-mock-render/mock/pl
 
 import startApp from '../app';
 import IntroScreen from '../screens/Intro';
+import WelcomeScreen from '../screens/Welcome';
 
 jest.mock(
   'react-native-navigation/src/deprecated/platformSpecificDeprecated',
@@ -42,6 +43,13 @@ describe('app integration test', () => {
 
     screenId = await Navigation.getCurrentlyVisibleScreenId();
     expect(screenId).toEqual('example.Welcome');
+
+    const welcomeNode = getEnzymeAppWrapper()
+      .find(WelcomeScreen)
+      .first();
+
+    console.warn('>>>>', getEnzymeAppWrapper().debug());
+    console.warn('>>>>', welcomeNode);
 
     // FIXME: this shows that componentDidMount is called on Main,
     // which it should be after modals have been opened.
