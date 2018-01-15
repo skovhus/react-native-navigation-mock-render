@@ -25,7 +25,7 @@
   "jest": {
     "preset": "react-native",
     "setupFiles": [
-      "./setup-jest.js"
+      "./node_modules/react-native-navigation-mock-render/setup/jest.js"
     ],
     "clearMocks": true,
     "modulePathIgnorePatterns": [

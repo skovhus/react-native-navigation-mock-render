@@ -6,7 +6,8 @@
   "repository": "skovhus/react-native-navigation-mock-render",
   "author": "Kenneth Skovhus <kenneth.skovhus@gmail.com>",
   "files": [
-    "lib"
+    "mock",
+    "setup"
   ],
   "scripts": {
     "lint": "eslint --fix .",

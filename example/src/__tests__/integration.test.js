@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import { Navigation } from 'react-native-navigation';
-import 'react-native-navigation-mock-render/lib/setup-enzyme-environment';
-import { getEnzymeAppWrapper } from 'react-native-navigation-mock-render/lib/platform';
+import 'react-native-navigation-mock-render/setup/enzyme-environment';
+import { getEnzymeAppWrapper } from 'react-native-navigation-mock-render/mock/platform';
 
 import startApp from '../app';
 import IntroScreen from '../screens/Intro';
@@ -9,12 +9,12 @@ import IntroScreen from '../screens/Intro';
 jest.mock(
   'react-native-navigation/src/deprecated/platformSpecificDeprecated',
   () =>
-    require.requireActual('react-native-navigation-mock-render/lib/platform')
+    require.requireActual('react-native-navigation-mock-render/mock/platform')
 );
 
 jest.mock('react-native-navigation/src/ScreenVisibilityListener', () =>
   require.requireActual(
-    'react-native-navigation-mock-render/lib/ScreenVisibilityListener'
+    'react-native-navigation-mock-render/mock/ScreenVisibilityListener'
   )
 );
 
